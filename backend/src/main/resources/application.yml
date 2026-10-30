@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/studio?serverTimezone=UTC}
+    username: ${DB_USER:studio}
+    password: ${DB_PASSWORD:studio-local-demo}
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+  jackson:
+    default-property-inclusion: always
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+studio:
+  dashscope-key: ${DASHSCOPE_API_KEY:}
+  image-model: ${DASHSCOPE_IMAGE_MODEL:qwen-image-2.0-pro}
+  dashscope-base: ${DASHSCOPE_BASE_URL:https://dashscope.aliyuncs.com/api/v1}
+  worker-count: ${WORKER_COUNT:2}
+  queue-capacity: ${QUEUE_CAPACITY:20}
+  storage: ${STORAGE_ROOT:./data}
+  simulation-enabled: ${SIMULATION_ENABLED:false}
+  public-origin: ${PUBLIC_ORIGIN:http://localhost:3100}
+  secure-cookie: ${SECURE_COOKIE:false}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+server:
+  shutdown: graceful
+

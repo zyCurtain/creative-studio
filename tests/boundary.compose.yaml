@@ -1,0 +1,16 @@
+# Use only with an isolated Compose project. Never run fault injection against the preview stack.
+services:
+  backend:
+    image: creative-studio-backend
+    environment:
+      DASHSCOPE_API_KEY: ''
+      WORKER_COUNT: '1'
+      QUEUE_CAPACITY: '2'
+      SIMULATION_ENABLED: 'true'
+  verify:
+    environment:
+      BASE_URL: http://backend:8080
+    volumes:
+      - boundary_state:/state
+volumes:
+  boundary_state:

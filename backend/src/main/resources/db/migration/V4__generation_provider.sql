@@ -1,0 +1,3 @@
+ALTER TABLE creation_task
+  ADD COLUMN generation_mode VARCHAR(20) NOT NULL DEFAULT 'SIMULATION',
+  ADD COLUMN generation_model VARCHAR(100) NULL;

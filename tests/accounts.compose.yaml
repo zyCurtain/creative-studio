@@ -1,0 +1,11 @@
+# Separate cookie hostname and data volumes for interactive account QA.
+services:
+  backend:
+    image: creative-studio-backend
+    environment:
+      DASHSCOPE_API_KEY: ''
+      PUBLIC_ORIGIN: http://127.0.0.1:3101
+  frontend:
+    image: creative-studio-frontend
+    ports: !override
+      - '127.0.0.1:3101:3000'

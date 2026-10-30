@@ -1,0 +1,32 @@
+name: Verify creative studio
+on: [push, pull_request]
+jobs:
+  containers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build, lint, typecheck and unit tests in containers
+        run: docker compose build
+      - name: Start application and database
+        run: docker compose up -d --wait --wait-timeout 180
+      - name: API integration checks
+        run: |
+          docker compose --profile test run --rm verify
+          docker compose --profile test run --rm verify node /tests/accounts.mjs
+          docker compose --profile test run --rm verify node /tests/deletion.mjs
+          docker compose --profile test run --rm verify node /tests/templates.mjs
+      - name: Queue saturation and abrupt restart in an isolated stack
+        run: |
+          docker compose -p creative-studio-boundary -f compose.yaml -f tests/boundary.compose.yaml up -d --no-build --wait --wait-timeout 180 db backend
+          docker compose -p creative-studio-boundary -f compose.yaml -f tests/boundary.compose.yaml --profile test run --rm --no-deps verify node /tests/boundaries.mjs prepare
+          docker compose -p creative-studio-boundary -f compose.yaml -f tests/boundary.compose.yaml kill -s SIGKILL backend
+          docker compose -p creative-studio-boundary -f compose.yaml -f tests/boundary.compose.yaml up -d --no-build --wait --wait-timeout 180 db backend
+          docker compose -p creative-studio-boundary -f compose.yaml -f tests/boundary.compose.yaml --profile test run --rm --no-deps verify node /tests/boundaries.mjs check
+      - name: Logs
+        if: failure()
+        run: docker compose logs --no-color
+      - name: Stop test containers
+        if: always()
+        run: |
+          docker compose down -v
+          docker compose -p creative-studio-boundary -f compose.yaml -f tests/boundary.compose.yaml --profile test down -v
